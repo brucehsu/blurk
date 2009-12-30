@@ -1,0 +1,11 @@
+USERNAME = ''
+PASSWORD = ''
+API_KEY = ''
+BOARD_ADDR = ''
+
+BASE_URL = 'http://www.plurk.com/API'
+
+LOGIN = 0
+GET_PLURKS = 1
+GET_RESPONSE = 2
+GET_PUBLIC_PROFILE = 3
