@@ -27,7 +27,14 @@ end
 def getPlurks()
   req = open(getUri(GET_PLURKS), "Cookie" => @cookie)
   parsed = JSON.parse(req.read())
+  #pp parsed['plurk_users']
+  offset = Time.new - 86400
   parsed['plurks'].each { |e|
-    puts "(#{e['posted']}) #{@display_name} #{e['qualifier_translated']}: #{e['content_raw']}"
+    datetime = Time.parse(e['posted'])
+    datetime =  datetime.localtime()
+    if datetime < offset then
+      break
+    end
+    puts "(#{datetime.strftime("%H:%M")}) #{@display_name} #{e['qualifier_translated']}: #{e['content_raw']}"
   }
 end
