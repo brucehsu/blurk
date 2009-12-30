@@ -27,14 +27,17 @@ end
 def getPlurks()
   req = open(getUri(GET_PLURKS), "Cookie" => @cookie)
   parsed = JSON.parse(req.read())
-  #pp parsed['plurk_users']
-  offset = Time.new - 86400
+  offset = Time.new.utc - DAY_SEC
   parsed['plurks'].each { |e|
     datetime = Time.parse(e['posted'])
-    datetime =  datetime.localtime()
+    datetime = datetime.utc
     if datetime < offset then
       break
     end
-    puts "(#{datetime.strftime("%H:%M")}) #{@display_name} #{e['qualifier_translated']}: #{e['content_raw']}"
+    if e['plurk_type'] == 1 || e['plurk_type'] == 3 then #ignore private plurks
+      next
+    end
+    datetime += TIMEZONE * HOUR_SEC
+    puts "(#{datetime.strftime("%m/%d %H:%M")}) #{@display_name} #{e['qualifier_translated']}: #{e['content_raw']}"
   }
 end

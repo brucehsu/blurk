@@ -2,6 +2,9 @@ USERNAME = ''
 PASSWORD = ''
 API_KEY = ''
 BOARD_ADDR = ''
+TIMEZONE = 8
+HOUR_SEC = 3600
+DAY_SEC = 86400
 
 BASE_URL = 'http://www.plurk.com/API'
 
