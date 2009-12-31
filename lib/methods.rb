@@ -36,12 +36,12 @@ def getPlurks()
   day_offset = Time.new.utc - DAY_SEC
   timezone_offset = TIMEZONE * HOUR_SEC
   @msg = ""
-  parsed['plurks'].each { |e|
+  parsed['plurks'].reverse_each { |e|
     pid = e['plurk_id']
     datetime = Time.parse(e['posted'])
     datetime = datetime.utc
     if datetime < day_offset then
-      break
+      next
     end
     if IGNORE_PRIVATE_PLURKS then
       if e['plurk_type'] == 1 || e['plurk_type'] == 3 then #ignore private plurks
@@ -50,18 +50,14 @@ def getPlurks()
     end
     datetime += timezone_offset
     publisher = "#{TAB}#{@display_name} #{e['qualifier_translated']}: "
-    tmpStr = formatToFit(publisher, e['content_raw'],ORIGINAL_NAME_COLOR,ORIGINAL_POST_COLOR)
-    #puts tmpStr
+    tmpStr = formatToFit(publisher, e['content_raw'],ORIGINAL_NAME_COLOR,ORIGINAL_CONTENT_COLOR)
     @msg << tmpStr << "\r\n"
-    #@msg += "#{TAB}#{@display_name} #{e['qualifier_translated']}: #{e['content_raw']}\r\n"
     @msg += "#{TAB}#{PLURK_BASE_URL}#{pid.to_s(36)} - Posted at #{datetime.strftime("%H:%M")}\r\n\r\n"
     getResponse(e['plurk_id'])
     @msg += "\r\n"
   }
   @msg += "---\r\nblurk #{VERSION} by Bruce Hsu, http://github.com/brucehsu/blurk"
-  #@msg = @msg.encode('big5-uao')
   sendMsg()
-  #puts @msg
 end
 
 def getResponse(id)
@@ -70,9 +66,10 @@ def getResponse(id)
   parsed['responses'].each { |e|
     user_id = e['user_id']
     display_name = parsed['friends']["#{user_id}"]['display_name']
-    responser = "#{TAB}#{TAB}#{display_name} #{e['qualifier_translated']}: "
+    response_time = Time.parse(e['posted'])
+    responser = "#{TAB}#{TAB}[#{response_time.strftime("%H:%M")}] #{display_name} #{e['qualifier_translated']}: "
     tmpStr = formatToFit(responser, e['content_raw'],DISPLAY_NAME_COLOR,CONTENT_COLOR)
-    @msg += tmpStr + "\r\n"
+    @msg +=  tmpStr + "\r\n"
   }
   @msg += "\r\n"
 end

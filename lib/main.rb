@@ -7,9 +7,7 @@ require 'net/smtp'
 require 'open-uri'
 require 'openssl'
 require 'iconv'
-require 'base64'
 require 'date'
-require 'pp'
 require 'methods.rb'
 require 'conf.rb'
 
@@ -22,6 +20,7 @@ LOGIN = 0
 GET_PLURKS = 1
 GET_RESPONSE = 2
 GET_PUBLIC_PROFILE = 3
+
 @start_time = Time.new.localtime
 @ic = Iconv.new("big5-hkscs//IGNORE", "utf-8")
 login()
