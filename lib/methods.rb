@@ -78,7 +78,7 @@ def formatPlurks()
   
 end
 
-def formatToFit(publisher, content,pcolor,ccolor)
+def formatToFit(publisher, content, pcolor, ccolor)
   pcolor_start = ''
   pcolor_start << 27 << '[m' << 27 << "[1;#{pcolor}m"
   pcolor_end = ''
@@ -95,20 +95,42 @@ def formatToFit(publisher, content,pcolor,ccolor)
   }
   byteCount += pcolor_start.length*2 + pcolor_end.length
   if byteCount > LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
+    publisher_length = 0
+    @ic.conv(publisher).each_byte { |bt|
+      publisher_length += 1
+    }
     newStr = ''
     tbyteCount = 0
+    isChinese = false
+    limit = LINE_MAX + pcolor_start.length*2 + pcolor_end.length
     tmpStr.each_byte { |b|
       tbyteCount += 1
       if b>=161 then
-        if tbyteCount == LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
-          newStr << ccolor_end << "\r\n" << ccolor_start << generateSpace(@ic.conv(publisher))
+        if isChinese then
+          newStr << b
+          if tbyteCount == limit then
+            newStr << ccolor_end << "\r\n" << ccolor_start << generateSpace(publisher_length)
+            limit = LINE_MAX
+            tbyteCount = publisher_length
+          end
+          isChinese = false
+        else
+          if tbyteCount == limit then
+            newStr << ccolor_end << "\r\n" << ccolor_start << generateSpace(publisher_length)
+            limit = LINE_MAX
+            tbyteCount = publisher_length
+          end
+          newStr << b
+          isChinese = true
         end
-        newStr << b
         next
       end
+      isChinese = false
       newStr << b
-      if tbyteCount == LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
-        newStr <<  ccolor_end << "\r\n" << ccolor_start<< generateSpace(@ic.conv(publisher))
+      if tbyteCount == limit then
+        newStr <<  ccolor_end << "\r\n" << ccolor_start << generateSpace(publisher_length)
+        limit = LINE_MAX
+        tbyteCount = publisher_length
       end
     }
     tmpStr = newStr
@@ -118,15 +140,13 @@ end
 
 def generateSpace(src)
   space = ""
-  src.each_byte { |byte|
+  src.times {
     space << ' '
   }
   return space
 end
 
 def sendMsg()
-  #ic = Iconv.new("big5-hkscs//IGNORE", "utf-8")
-  #@msg = ic.iconv(@msg)
   @display_name = @ic.conv(@display_name)
   message = <<MESSAGE_END
 Subject: #{@display_name}'s Plurk (#{@start_time.strftime("%Y/%m/%d")})
