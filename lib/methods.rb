@@ -50,11 +50,11 @@ def getPlurks()
     end
     datetime += timezone_offset
     publisher = "#{TAB}#{@display_name} #{e['qualifier_translated']}: "
-    tmpStr = formatToFit(publisher, e['content_raw'])
+    tmpStr = formatToFit(publisher, e['content_raw'],ORIGINAL_NAME_COLOR,ORIGINAL_POST_COLOR)
     #puts tmpStr
     @msg << tmpStr << "\r\n"
     #@msg += "#{TAB}#{@display_name} #{e['qualifier_translated']}: #{e['content_raw']}\r\n"
-    @msg += "#{TAB}#{PLURK_BASE_URL}#{pid.to_s(36)} - Published at #{datetime.strftime("%H:%M")}\r\n\r\n"
+    @msg += "#{TAB}#{PLURK_BASE_URL}#{pid.to_s(36)} - Posted at #{datetime.strftime("%H:%M")}\r\n\r\n"
     getResponse(e['plurk_id'])
     @msg += "\r\n"
   }
@@ -71,42 +71,52 @@ def getResponse(id)
     user_id = e['user_id']
     display_name = parsed['friends']["#{user_id}"]['display_name']
     responser = "#{TAB}#{TAB}#{display_name} #{e['qualifier_translated']}: "
-    tmpStr = formatToFit(responser, e['content_raw'])
+    tmpStr = formatToFit(responser, e['content_raw'],DISPLAY_NAME_COLOR,CONTENT_COLOR)
     @msg += tmpStr + "\r\n"
   }
+  @msg += "\r\n"
 end
 
 def formatPlurks()
   
 end
 
-def formatToFit(publisher, content)
-  tmpStr = "#{publisher}#{content}"
+def formatToFit(publisher, content,pcolor,ccolor)
+  pcolor_start = ''
+  pcolor_start << 27 << '[m' << 27 << "[1;#{pcolor}m"
+  pcolor_end = ''
+  pcolor_end << 27 << '[m'
+  ccolor_start = ''
+  ccolor_start << 27 << '[m' << 27 << "[1;#{ccolor}m"
+  ccolor_end = ''
+  ccolor_end << 27 << '[m'
+  tmpStr = "#{pcolor_start}#{publisher}#{pcolor_end}#{ccolor_start}#{content}"
   tmpStr = @ic.conv(tmpStr)
   byteCount = 0
   tmpStr.each_byte { |byte|
     byteCount += 1
   }
-  if byteCount > LINE_MAX then
+  byteCount += pcolor_start.length*2 + pcolor_end.length
+  if byteCount > LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
     newStr = ''
     tbyteCount = 0
     tmpStr.each_byte { |b|
       tbyteCount += 1
       if b>=161 then
-        if tbyteCount == LINE_MAX then
-          newStr << "\r\n" << generateSpace(@ic.conv(publisher))
+        if tbyteCount == LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
+          newStr << ccolor_end << "\r\n" << ccolor_start << generateSpace(@ic.conv(publisher))
         end
         newStr << b
         next
       end
       newStr << b
-      if tbyteCount == LINE_MAX then
-        newStr << "\r\n" << generateSpace(@ic.conv(publisher))
+      if tbyteCount == LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
+        newStr <<  ccolor_end << "\r\n" << ccolor_start<< generateSpace(@ic.conv(publisher))
       end
     }
     tmpStr = newStr
   end
-  return tmpStr
+  return tmpStr + ccolor_end
 end
 
 def generateSpace(src)
