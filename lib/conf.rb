@@ -1,12 +1,19 @@
 USERNAME = ''
 PASSWORD = ''
 API_KEY = ''
-BOARD_ADDR = ''
 TIMEZONE = 8
-HOUR_SEC = 3600
-DAY_SEC = 86400
+
+SMTP_SERVER = 'smtp.gmail.com'
+SMTP_SERVER_PORT = 587
+EMAIL_ACCOUNT = ''
+EMAIL_PASSWORD = ''
+EMAIL_ADDRESS = ''
+FORWARD_ADDRESS = ''
+
+IGNORE_PRIVATE_PLURKS = true
 
 BASE_URL = 'http://www.plurk.com/API'
+PLURK_BASE_URL = 'http://www.plurk.com/p/'
 
 LOGIN = 0
 GET_PLURKS = 1
