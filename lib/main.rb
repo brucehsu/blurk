@@ -11,7 +11,7 @@ require 'date'
 require 'methods.rb'
 require 'conf.rb'
 
-VERSION = "0.1 Beta"
+VERSION = "1.0 Beta"
 HOUR_SEC = 3600
 DAY_SEC = 86400
 LINE_MAX = 78
@@ -25,3 +25,4 @@ GET_PUBLIC_PROFILE = 3
 @ic = Iconv.new("big5-hkscs//IGNORE", "utf-8")
 login()
 getPlurks()
+puts 'Done.'

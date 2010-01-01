@@ -23,6 +23,7 @@ def generateResponse(id)
 end
 
 def login()
+  puts 'Logining...'
 	req = open(getUri(LOGIN))
   @cookie = req.meta['set-cookie'].split("; ",2)[0]
   parsed = JSON.parse(req.read())
@@ -35,6 +36,7 @@ def getPlurks()
   parsed = JSON.parse(req.read())
   day_offset = Time.new.utc - DAY_SEC
   timezone_offset = TIMEZONE * HOUR_SEC
+  puts 'Fetching plurks and responses...'
   @msg = ""
   parsed['plurks'].reverse_each { |e|
     pid = e['plurk_id']
@@ -147,6 +149,7 @@ def generateSpace(src)
 end
 
 def sendMsg()
+  puts 'Forwarding...'
   @display_name = @ic.conv(@display_name)
   message = <<MESSAGE_END
 Subject: #{@display_name}'s Plurk (#{@start_time.strftime("%Y/%m/%d")})
