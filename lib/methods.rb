@@ -157,11 +157,13 @@ Subject: #{@display_name}'s Plurk (#{@start_time.strftime("%Y/%m/%d")})
 #{@msg}
 MESSAGE_END
   Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
-  Net::SMTP.start(SMTP_SERVER,
-    SMTP_SERVER_PORT,
-    'localhost',
-    EMAIL_ACCOUNT, EMAIL_PASSWORD , :plain) do |smtp|
-    smtp.send_message message, EMAIL_ADDRESS,
-      FORWARD_ADDRESS
-  end
+  FORWARD_ADDRESS.each { |e|
+    Net::SMTP.start(SMTP_SERVER,
+      SMTP_SERVER_PORT,
+      'localhost',
+      EMAIL_ACCOUNT, EMAIL_PASSWORD , :plain) do |smtp|
+      smtp.send_message message, EMAIL_ADDRESS,
+      e
+    end
+  }
 end
