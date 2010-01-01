@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+print 'Please enter the hour of day (0-23): '
+hour = gets.split("\n")[0]
+print 'Please enter the minute of day (0-59):'
+min = gets.split("\n")[0]
+
+cmd = "#{min} #{hour} * * * #{Dir.pwd}/blurk\n"
+
+system('crontab -l > crontab.tmp;')
+
+tmp = open("crontab.tmp")
+
+cron_tmp = ''
+cron_tmp << tmp.read
+
+tmp.close
+
+file = open('crontab.blurk',"w")
+
+file << cron_tmp << cmd
+
+file.close
+
+system('crontab crontab.blurk')
+system('rm crontab.blurk crontab.tmp')
