@@ -29,6 +29,9 @@ def login()
   parsed = JSON.parse(req.read())
   @user_id = parsed['user_info']['id']
   @display_name = parsed['user_info']['display_name']
+  if @display_name.empty? then
+    @display_name = parsed['user_info']['nick_name']
+  end
 end
 
 def getPlurks()
@@ -68,6 +71,9 @@ def getResponse(id)
   parsed['responses'].each { |e|
     user_id = e['user_id']
     display_name = parsed['friends']["#{user_id}"]['display_name']
+    if display_name.empty? then
+      display_name = parsed['friends']["#{user_id}"]['nick_name']
+    end
     response_time = Time.parse(e['posted'])
     responser = "#{TAB}#{TAB}[#{response_time.strftime("%H:%M")}] #{display_name} #{e['qualifier_translated']}: "
     tmpStr = formatToFit(responser, e['content_raw'],DISPLAY_NAME_COLOR,CONTENT_COLOR)
