@@ -96,7 +96,7 @@ def formatToFit(publisher, content, pcolor, ccolor)
   ccolor_end = ''
   ccolor_end << 27 << '[m'
   tmpStr = "#{pcolor_start}#{publisher}#{pcolor_end}#{ccolor_start}#{content}"
-  tmpStr = @ic.conv(tmpStr)
+  tmpStr = tmpStr.encode('big5-uao',undef: :replace)
   byteCount = 0
   tmpStr.each_byte { |byte|
     byteCount += 1
@@ -104,7 +104,8 @@ def formatToFit(publisher, content, pcolor, ccolor)
   byteCount += pcolor_start.length*2 + pcolor_end.length
   if byteCount > LINE_MAX + pcolor_start.length*2 + pcolor_end.length then
     publisher_length = 0
-    @ic.conv(publisher).each_byte { |bt|
+    publisher = publisher.encode('big5-uao',undef: :replace)
+    publisher.each_byte { |bt|
       publisher_length += 1
     }
     newStr = ''
@@ -156,20 +157,14 @@ end
 
 def sendMsg()
   puts 'Forwarding...'
-  @display_name = @ic.conv(@display_name)
-  message = <<MESSAGE_END
-Subject: #{@display_name}'s Plurk (#{@start_time.strftime("%Y/%m/%d")})
+  @display_name = @display_name.encode('big5-uao',undef: :replace)
+  subject = "#{@display_name}'s Plurk (#{@start_time.strftime("%Y/%m/%d")})"
 
-#{@msg}
-MESSAGE_END
-  Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
-  FORWARD_ADDRESS.each { |e|
-    Net::SMTP.start(SMTP_SERVER,
-      SMTP_SERVER_PORT,
-      'localhost',
-      EMAIL_ACCOUNT, EMAIL_PASSWORD , :plain) do |smtp|
-      smtp.send_message message, EMAIL_ADDRESS,
-      e
-    end
+  File.open('mail','w') { |f| f.write(@msg) }
+
+  FORWARD_ADDRESS.each { |e| 
+     shell = "cat mail | mail -E -s \"#{subject}\" #{e}"
+     system(shell)
   }
+  system('rm mail')
 end
